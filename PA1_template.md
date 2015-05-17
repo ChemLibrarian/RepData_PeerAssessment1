@@ -131,7 +131,7 @@ median_step_day_filled <- median(sum_day_filled$sum_step_day)
 ```
 
 * There are 2304 missing values in the step counts. After filling these missing value with the median of corresponding 5-mintute interval across all days counted, the mean of total number of steps taken per day is 9503 and the median of total number of steps taken per day is 10395. 
-* The histogram above and the mean after filling the missing values with the median of corresponding 5-minute interval are different from simply removing those NA values. The median stayed the same since the median of each interval was used to fill in NA values. The mean increased since NA values were replaced thus the total steps and mean were increased. As shown in the histogram, the group with steps count between 5000 to 20000 were not changed much. But the days with 0 - 1000 step counts decreased from 10 days to 2 days while the groups with step counts between 1000 - 2000 increased from 0 to 8. Apparently, these were the days with most NA values which have been replaced with median of 5-min intervals. 
+* The histogram above and the mean after filling the missing values with the median of corresponding 5-minute interval are different from simply removing those NA values. The median stayed the same since the median of each interval was used to fill in NA values. The mean increased from 9354 steps to 9503 steps since NA values were replaced thus the total steps and mean were increased. As shown in the histogram, the group with steps count between 5000 to 20000 were not changed much. But the days with 0 - 1000 step counts decreased from 10 days to 2 days while the groups with step counts between 1000 - 2000 increased from 0 to 8. Apparently, these were the days with most NA values which have been replaced with median of 5-min intervals. 
 
 ## Are there differences in activity patterns between weekdays and weekends?
 * The follwoing R script plots the mean of steps taken in 5-minute intervals on weekdays v.s. on weekends to compare the activity patterns. 
@@ -150,6 +150,8 @@ Activity_week_mean_summary <- Activity_filled %>%
         summarise(WeekMean = mean(steps))
 
 ## add a time sequence to the table for plotting purpose
+## this is not the ideal way to create the x-axis since it still contains the date value but sufficient for exploration purpose.
+## I was able to convert the interval to POSIXlt format but the new matrix keeps crashing R Studio when I try to use the new time variable to plot. So, I used the alternative way below.   
 Activity_week_mean_summary$time <- seq(ISOdatetime(2012,10,1,0,0,0), ISOdatetime(2012,10,2,23,55,0), by=(60*5))
 
 
