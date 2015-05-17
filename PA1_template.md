@@ -5,6 +5,7 @@ Analysis of Activity Monitoring Device Data
 ===========================================
 
 ## Loading and preprocessing the data
+The following R script will load the raw data activity.csv from the same working directory, prepare the data for analysis by R package dplyr, and convert the date column into Date class in R. 
 
 
 ```r
@@ -24,7 +25,7 @@ str(Activity)
 suppressPackageStartupMessages(library(dplyr))
 Activity <- tbl_df(Activity)
 
-## Convert date to datetime format in R
+## Convert date to Date format in R
 Activity$date <- as.Date(Activity$date, format = "%Y-%m-%d")
 ```
 
@@ -59,7 +60,7 @@ mean_step_day <- as.integer(mean(sum_day$sum_step_day))
 median_step_day <- median(sum_day$sum_step_day)
 ```
 
-* The mean total number of steps taken per day is 9354 and the median total number of steps taken per day is 10395. 
+* The mean of total number of steps taken per day is 9354 steps and the median of total number of steps taken per day is 10395 steps. 
 
 
 ## What is the average daily activity pattern?
@@ -75,7 +76,10 @@ avg_interval <- Activity %>%
 ## add a time sequence to the table for plotting purpose
 avg_interval$time <- seq(ISOdatetime(2012,10,1,0,0,0), ISOdatetime(2012,10,1,23,55,0), by=(60*5))
 
-plot(avg_step_interval ~ time, avg_interval, type = "l", xlab = "Time Interval (min)", ylab = "Average Steps Taken", main ="Average Number of Steps Taken in 5-minutes Interval across All Days \n (2012-10-01 to 2012-11-30)" )
+plot(avg_step_interval ~ time, avg_interval, 
+     type = "l", xlab = "Time Interval (min)", 
+     ylab = "Average Steps Taken", 
+     main ="Average Number of Steps Taken in 5-minutes Interval across All Days \n (2012-10-01 to 2012-11-30)" )
 ```
 
 ![](PA1_template_files/figure-html/actpattern-1.png) 
@@ -85,9 +89,11 @@ plot(avg_step_interval ~ time, avg_interval, type = "l", xlab = "Time Interval (
 max_interval <- avg_interval[avg_interval$avg_step_interval == max(avg_interval$avg_step_interval), ]
 ```
 
-* The top average steps taken is 206 steps during the 835 5-minutes interval.
+* The maximum average steps taken is 206 steps during the 835 5-minutes interval, i.e. averagely maxium steps walking in 5 min interval is 206 steps between 8:35 am - 8:40 am.
 
 ## Imputing missing values
+* The R script below counted the missing NA values in the original data and replaced them with the meidan of the corresponding 5-minute interval across all days measured. The data with filled NA values is then plotted in the histogram below. 
+
 
 ```r
 ## count number of missing values in the orignal data set
@@ -123,23 +129,22 @@ qplot(sum_day_filled$sum_step_day,
 mean_step_day_filled <- as.integer(mean(sum_day_filled$sum_step_day))
 median_step_day_filled <- median(sum_day_filled$sum_step_day)
 ```
-* There are 2304 missing values in the step counts. With these missing value filled with the median of corresponding 5-mintute interval across all days counted, the mean of total number of steps taken per day is 9503 and the median of total number of steps taken per day is 10395. 
-* The histogram above and the mean and median after filling the missing values with the median of corresponding 5-minute interval are different from simply removing those NA values. The median stayed the same since the median of each interval was used to fill in NA values. The mean increased since NA values were added. As shown in the histogram, the group with steps count between 5000 to 20000 are not changed much. But the groups with step counts between 1000 - 2000 increased from 0 to 8. Apparently, these are the days with most NA values which have been replaced with median of 5-min intervals. 
+
+* There are 2304 missing values in the step counts. After filling these missing value with the median of corresponding 5-mintute interval across all days counted, the mean of total number of steps taken per day is 9503 and the median of total number of steps taken per day is 10395. 
+* The histogram above and the mean after filling the missing values with the median of corresponding 5-minute interval are different from simply removing those NA values. The median stayed the same since the median of each interval was used to fill in NA values. The mean increased since NA values were replaced thus the total steps and mean were increased. As shown in the histogram, the group with steps count between 5000 to 20000 were not changed much. But the days with 0 - 1000 step counts decreased from 10 days to 2 days while the groups with step counts between 1000 - 2000 increased from 0 to 8. Apparently, these were the days with most NA values which have been replaced with median of 5-min intervals. 
 
 ## Are there differences in activity patterns between weekdays and weekends?
+* The follwoing R script plots the mean of steps taken in 5-minute intervals on weekdays v.s. on weekends to compare the activity patterns. 
+
 
 ```r
-## and add the column to desigate "weekday" or "weekend" levels
+## add the column to desigate "weekday" or "weekend" levels
 Weekday <- weekdays(Activity_filled$date)
 Weekday[Weekday %in% c("Saturday", "Sunday")] <- "weekend"
 Weekday[Weekday %in% c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday")] <- "weekday"
 Activity_filled$weekvar <- as.factor(Weekday)
 
 ## Calculate mean of each time interval for both weekdays and weekends
-Activity_week_mean <- Activity_filled %>%
-        group_by(weekvar, interval) %>%
-        mutate(WeekMean = mean(steps))
-
 Activity_week_mean_summary <- Activity_filled %>%
         group_by(weekvar, interval) %>%
         summarise(WeekMean = mean(steps))
@@ -160,5 +165,6 @@ g <- ggplot (Activity_week_mean_summary, aes(time, WeekMean))
 
 ![](PA1_template_files/figure-html/weekdiffweekend-1.png) 
 
+* Based on the two plots above, the maximus steps during 5-min intervals on weekdays is about 50 steps higher than weekends. During weekdays, the more active patterns (more than 100 steps per 5 minutes) concentrated between 8:00- 9:30 and 18:00 - 19:30; while during weekends, those 100+ steps/5min activities are more distributed throughout the day. 
 
 
