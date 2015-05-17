@@ -150,8 +150,11 @@ Activity_week_mean_summary <- Activity_filled %>%
         summarise(WeekMean = mean(steps))
 
 ## add a time sequence to the table for plotting purpose
-## this is not the ideal way to create the x-axis since it still contains the date value but sufficient for exploration purpose.
-## I was able to convert the interval to POSIXlt format but the new matrix keeps crashing R Studio when I try to use the new time variable to plot. So, I used the alternative way below.   
+## this is not the ideal way to create the x-axis since it still 
+## contains the date value but sufficient for exploration purpose.
+## I was able to convert the interval to POSIXlt format but the new 
+## matrix keeps crashing R Studio when I try to use the new time 
+## variable to plot. So, I used the alternative way below.   
 Activity_week_mean_summary$time <- seq(ISOdatetime(2012,10,1,0,0,0), ISOdatetime(2012,10,2,23,55,0), by=(60*5))
 
 
